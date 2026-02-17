@@ -21,6 +21,7 @@ app.mount("/static", StaticFiles(directory=os.path.join(Path(__file__).parent,
 
 # In-memory activity database
 # Initialize activities database
+# TODO: Add more activities
 activities = {
     "Chess Club": {
         "description": "Learn strategies and compete in chess tournaments",
