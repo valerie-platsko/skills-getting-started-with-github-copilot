@@ -4,6 +4,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const signupForm = document.getElementById("signup-form");
   const messageDiv = document.getElementById("message");
 
+  // Helpers for participant display
+  function getInitials(text) {
+    if (!text) return "";
+    const base = String(text).split("@")[0];
+    const parts = base.replace(/[_.\-]+/g, " ").split(" ").filter(Boolean);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + (parts[1] ? parts[1][0] : parts[0][1])).toUpperCase();
+  }
+
+  function formatParticipantName(text) {
+    if (!text) return "";
+    if (String(text).includes("@")) {
+      const local = String(text).split("@")[0];
+      return local.replace(/[_.\-]+/g, " ").split(" ").map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(" ");
+    }
+    return String(text);
+  }
+
   // Function to fetch activities from API
   async function fetchActivities() {
     try {
@@ -26,6 +44,43 @@ document.addEventListener("DOMContentLoaded", () => {
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
         `;
+
+        // Participants section (bulleted list with avatar initials)
+        const participantsSection = document.createElement("div");
+        participantsSection.className = "participants-section";
+
+        const participantsTitle = document.createElement("strong");
+        participantsTitle.textContent = "Participants";
+        participantsSection.appendChild(participantsTitle);
+
+        const participantsListEl = document.createElement("ul");
+        participantsListEl.className = "participants-list";
+
+        if (details.participants && details.participants.length > 0) {
+          details.participants.forEach((p) => {
+            const li = document.createElement("li");
+
+            const avatar = document.createElement("span");
+            avatar.className = "avatar";
+            avatar.textContent = getInitials(p);
+
+            const nameSpan = document.createElement("span");
+            nameSpan.className = "participant-name";
+            nameSpan.textContent = formatParticipantName(p);
+
+            li.appendChild(avatar);
+            li.appendChild(nameSpan);
+            participantsListEl.appendChild(li);
+          });
+        } else {
+          const li = document.createElement("li");
+          li.className = "no-participants";
+          li.textContent = "No participants yet";
+          participantsListEl.appendChild(li);
+        }
+
+        participantsSection.appendChild(participantsListEl);
+        activityCard.appendChild(participantsSection);
 
         activitiesList.appendChild(activityCard);
 
